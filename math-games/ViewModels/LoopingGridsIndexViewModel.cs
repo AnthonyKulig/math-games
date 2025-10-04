@@ -1,32 +1,28 @@
-using System.Collections.Generic;
+
+using System.Reflection;
+using System.Text.Json;
 
 namespace math_games.ViewModels
 {
     public class LoopingGridsIndexViewModel
     {
+        #region public properties
         public string? Instructions { get; set; }
         public int Rows { get; set; } = 50;
         public int Columns { get; set; } = 50;
-        public int CellSizePx { get; set; } = 12;
 
-        // Starting cell (m/2, n/2)
         public int StartRow { get; set; } = 25;
         public int StartColumn { get; set; } = 25;
-
         // Hidden field to pass the current grid state as JSON on form submit
         public string? GridStateJson { get; set; }
-
-        // 2D grid of active (true) / inactive (false) cells
         public List<List<bool>> Cells { get; set; } = new();
+        #endregion
 
-        public void EnsureGrid()
+        #region public methods
+        public void ResetGrid()
         {
-            if (Rows <= 0) Rows = 1;
-            if (Columns <= 0) Columns = 1;
-
-            // Only set default if not already set
-            if (StartRow < 0 || StartRow >= Rows) StartRow = Rows / 2;
-            if (StartColumn < 0 || StartColumn >= Columns) StartColumn = Columns / 2;
+            if (Rows <= 0 || Columns <= 0)
+                throw new Exception($"Invalid gridsize:{Rows},{Columns}");
 
             Cells.Clear();
             for (int r = 0; r < Rows; r++)
@@ -36,15 +32,76 @@ namespace math_games.ViewModels
                 {
                     row.Add(false); // start inactive
                 }
+
                 Cells.Add(row);
             }
+
+            GridStateJson = JsonSerializer.Serialize(Cells);
         }
 
+        public void ApplyInstructions(List<int> distances)
+        {
+            int currentRow = StartRow;
+            int currentColumn = StartColumn;
+            string direction = "left";
+
+            for (int steps = 0; steps < 100; steps++)
+            {
+                direction = GetNextDirection(direction);
+                int distance = distances[steps % distances.Count];
+
+                for (int i = 0; i < distance; i++)
+                {
+                    switch (direction)
+                    {
+                        case "up": currentRow -= 1; break;
+                        case "right": currentColumn += 1; break;
+                        case "down": currentRow += 1; break;
+                        case "left": currentColumn -= 1; break;
+                    }
+
+                    if (currentRow < Rows && currentColumn < Columns
+                        && currentRow > 0 && currentColumn > 0)
+                    {
+                        Cells[currentRow][currentColumn] = true;
+                    }
+                }
+            }
+
+            GridStateJson = JsonSerializer.Serialize(Cells);
+        }
+        #endregion
+
+        #region private helper methods
+        private string GetNextDirection(string direction)
+        {
+            if (direction == "up")
+            {
+                return "right";
+            }
+            else if (direction == "right")
+            {
+                return "down";
+            }
+            else if (direction == "down")
+            {
+                return "left";
+            }
+            else
+            {
+                return "up";
+            }
+        }
+        #endregion
+
+        #region public factory methods
         public static LoopingGridsIndexViewModel CreateDefault()
         {
             var vm = new LoopingGridsIndexViewModel();
-            vm.EnsureGrid();
+            vm.ResetGrid();
             return vm;
         }
+        #endregion
+
     }
 }

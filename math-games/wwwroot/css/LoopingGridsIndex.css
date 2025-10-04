@@ -1,6 +1,6 @@
 /* Styles for LoopingGrids Index grid */
 .grid-table { border-collapse: collapse; table-layout: fixed; }
-.grid-table td { width: var(--cell-size, 12px); height: var(--cell-size, 12px); padding: 0; border: 1px solid #ddd; cursor: pointer; }
+.grid-table td { width: 12px; height: 12px; padding: 0; border: 1px solid #ddd; cursor: pointer; }
 .grid-table td.active { background: #0d6efd; }
 .grid-table td.inactive { background: #f8f9fa; }
 .grid-table td.start { box-shadow: inset 0 0 0 2px #198754; }
