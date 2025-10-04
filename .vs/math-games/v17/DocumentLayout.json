@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Projects\\math-games\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{2856C5F5-F917-42C9-A013-5CAE4A8A0068}|math-games-web\\math-games-web.csproj|c:\\projects\\math-games\\math-games-web\\pages\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{2856C5F5-F917-42C9-A013-5CAE4A8A0068}|math-games-web\\math-games-web.csproj|solutionrelative:math-games-web\\pages\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 194,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Projects\\math-games\\math-games-web\\Pages\\Index.cshtml",
+              "RelativeDocumentMoniker": "math-games-web\\Pages\\Index.cshtml",
+              "ToolTip": "C:\\Projects\\math-games\\math-games-web\\Pages\\Index.cshtml",
+              "RelativeToolTip": "math-games-web\\Pages\\Index.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-10-04T17:34:57.681Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
