@@ -1,0 +1,55 @@
+﻿using System.Text.Json;
+using math_games.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+
+namespace math_games.Controllers
+{
+    public class LoopingGridsController : Controller
+    {
+        [HttpGet]
+        public IActionResult Index()
+        {
+            var vm = LoopingGridsIndexViewModel.CreateDefault();
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Index(LoopingGridsIndexViewModel model)
+        {
+            // If client posted grid state as JSON, deserialize to model.Cells
+            if (!string.IsNullOrWhiteSpace(model.GridStateJson))
+            {
+                try
+                {
+                    var parsed = JsonSerializer.Deserialize<List<List<bool>>>(model.GridStateJson);
+                    if (parsed is not null)
+                    {
+                        model.Cells = parsed;
+                        model.Rows = parsed.Count;
+                        model.Columns = parsed.Count > 0 ? parsed[0].Count : 0;
+                    }
+                }
+                catch
+                {
+                    // If parsing fails, fall back to default grid
+                    model = LoopingGridsIndexViewModel.CreateDefault();
+                }
+            }
+            else
+            {
+                // No grid state provided, ensure default grid
+                if (model.Rows <= 0 || model.Columns <= 0)
+                {
+                    model = LoopingGridsIndexViewModel.CreateDefault();
+                }
+                else
+                {
+                    model.EnsureGrid();
+                }
+            }
+
+            return View(model);
+        }
+    }
+}

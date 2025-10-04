@@ -1,0 +1,57 @@
+@model math_games.ViewModels.LoopingGridsIndexViewModel
+@{
+    ViewData["Title"] = "Looping Grids";
+}
+
+<h1>Looping Grids</h1>
+
+<form asp-controller="LoopingGrids" asp-action="Index" method="post" class="mb-3">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="Instructions" class="form-label"></label>
+            <input asp-for="Instructions" class="form-control" placeholder="e.g. 1,2,3,4" />
+            <span asp-validation-for="Instructions" class="text-danger"></span>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="StartRow" class="form-label">Start Row</label>
+            <input asp-for="StartRow" type="number" class="form-control" min="0" />
+        </div>
+        <div class="col-md-3">
+            <label asp-for="StartColumn" class="form-label">Start Column</label>
+            <input asp-for="StartColumn" type="number" class="form-control" min="0" />
+        </div>
+    </div>
+    <input type="hidden" asp-for="GridStateJson" />
+    <button type="submit" class="btn btn-primary mt-3">Submit</button>
+</form>
+
+<div class="mt-4">
+    <table class="grid-table" id="grid" style="--cell-size: @(Model.CellSizePx)px;">
+        <tbody>
+        @for (var r = 0; r < Model.Rows; r++)
+        {
+            <tr>
+                @for (var c = 0; c < Model.Columns; c++)
+                {
+                    var isActive = Model.Cells[r][c];
+                    var cls = isActive ? "active" : "inactive";
+                    var isStart = r == Model.StartRow && c == Model.StartColumn ? "start" : "";
+                    <td class="cell @cls @isStart" data-r="@r" data-c="@c"></td>
+                }
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="~/js/LoopingGridsIndex.js"></script>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/LoopingGridsIndex.css" />
+}
+
+<div class="mt-3">
+    <a asp-controller="Home" asp-action="Index" class="btn btn-link">Back to Home</a>
+</div>

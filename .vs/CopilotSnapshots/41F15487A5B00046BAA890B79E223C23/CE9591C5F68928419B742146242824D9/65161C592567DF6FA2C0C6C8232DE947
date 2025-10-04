@@ -1,0 +1,109 @@
+﻿using System.Text.Json;
+using math_games.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+
+namespace math_games.Controllers
+{
+    public class LoopingGridsController : Controller
+    {
+        [HttpGet]
+        public IActionResult Index()
+        {
+            var vm = LoopingGridsIndexViewModel.CreateDefault();
+            vm.GridStateJson = JsonSerializer.Serialize(vm.Cells);
+            return View(vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Index(LoopingGridsIndexViewModel model)
+        {
+            // Always start from a clean grid based on posted dimensions
+            if (model.Rows <= 0 || model.Columns <= 0)
+            {
+                ModelState.AddModelError(nameof(model.Rows), "Invalid grid dimensions.");
+                model = LoopingGridsIndexViewModel.CreateDefault();
+            }
+            else
+            {
+                model.EnsureGrid();
+            }
+
+            // Validate and parse instructions: list of numbers separated by commas
+            var nums = new List<int>();
+            if (!string.IsNullOrWhiteSpace(model.Instructions))
+            {
+                var parts = model.Instructions.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                foreach (var p in parts)
+                {
+                    if (int.TryParse(p, out var n))
+                    {
+                        nums.Add(n);
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(nameof(model.Instructions), "Instructions must be a list of integers separated by commas.");
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                ModelState.AddModelError(nameof(model.Instructions), "Instructions must be provided as a list of integers separated by commas.");
+            }
+
+            // If instructions valid, apply movement logic
+            if (ModelState.IsValid && nums.Count > 0)
+            {
+                int r = model.StartRow;
+                int c = model.StartColumn;
+
+                // Directions: Up, Right, Down, Left
+                int[][] dirs = new int[][]
+                {
+                    new []{-1, 0}, // up
+                    new []{ 0, 1}, // right
+                    new []{ 1, 0}, // down
+                    new []{ 0,-1}  // left
+                };
+
+                int dirIndex = 0;
+                int stepsApplied = 0;
+
+                // Mark starting cell active
+                if (r >= 0 && r < model.Rows && c >= 0 && c < model.Columns)
+                {
+                    model.Cells[r][c] = true;
+                }
+
+                for (int i = 0; i < nums.Count && stepsApplied < 100; i++)
+                {
+                    int toMove = nums[i];
+                    var d = dirs[dirIndex % 4];
+
+                    for (int s = 0; s < toMove && stepsApplied < 100; s++)
+                    {
+                        r += d[0];
+                        c += d[1];
+
+                        // Stop moving if out of bounds
+                        if (r < 0 || r >= model.Rows || c < 0 || c >= model.Columns)
+                        {
+                            break;
+                        }
+
+                        model.Cells[r][c] = true; // activate cell moved over
+                        stepsApplied++;
+                    }
+
+                    dirIndex++;
+                }
+            }
+
+            // Keep hidden field in sync for subsequent renders
+            model.GridStateJson = JsonSerializer.Serialize(model.Cells);
+
+            return View(model);
+        }
+    }
+}

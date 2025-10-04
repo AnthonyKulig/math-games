@@ -1,0 +1,75 @@
+﻿@model math_games.ViewModels.LoopingGridsIndexViewModel
+@{
+    ViewData["Title"] = "Looping Grids";
+}
+
+<h1>Looping Grids</h1>
+
+<form asp-controller="LoopingGrids" asp-action="Index" method="post" class="mb-3">
+    <div class="mb-3">
+        <label asp-for="Instructions" class="form-label"></label>
+        <input asp-for="Instructions" class="form-control" />
+    </div>
+    <input type="hidden" asp-for="GridStateJson" />
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+<div class="mt-4">
+    <style>
+        .grid-table { border-collapse: collapse; table-layout: fixed; }
+        .grid-table td { width: @(Model.CellSizePx)px; height: @(Model.CellSizePx)px; padding: 0; border: 1px solid #ddd; cursor: pointer; }
+        .grid-table td.active { background: #0d6efd; }
+        .grid-table td.inactive { background: #f8f9fa; }
+    </style>
+    <table class="grid-table" id="grid">
+        <tbody>
+        @for (var r = 0; r < Model.Rows; r++)
+        {
+            <tr>
+                @for (var c = 0; c < Model.Columns; c++)
+                {
+                    var isActive = Model.Cells[r][c];
+                    var cls = isActive ? "active" : "inactive";
+                    <td class="cell @cls" data-r="@r" data-c="@c"></td>
+                }
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+<script>
+(() => {
+    const rows = @Model.Rows;
+    const cols = @Model.Columns;
+    const gridEl = document.getElementById('grid');
+    const hidden = document.querySelector('input[name="GridStateJson"]');
+
+    let cells = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Cells));
+
+    function syncHidden() {
+        hidden.value = JSON.stringify(cells);
+    }
+
+    // Initialize hidden with server state
+    syncHidden();
+
+    gridEl.addEventListener('click', (e) => {
+        const td = e.target.closest('td.cell');
+        if (!td) return;
+        const r = parseInt(td.getAttribute('data-r'));
+        const c = parseInt(td.getAttribute('data-c'));
+        const current = !!cells[r][c];
+        cells[r][c] = !current;
+        td.classList.toggle('active', !current);
+        td.classList.toggle('inactive', current);
+        syncHidden();
+    });
+})();
+</script>
+}
+
+<div class="mt-3">
+    <a asp-controller="Home" asp-action="Index" class="btn btn-link">Back to Home</a>
+</div>

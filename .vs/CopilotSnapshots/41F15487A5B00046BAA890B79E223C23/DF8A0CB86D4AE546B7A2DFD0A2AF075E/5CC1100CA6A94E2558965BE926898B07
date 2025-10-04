@@ -1,0 +1,3 @@
+﻿@using math_games
+@using math_games.Models
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers

@@ -1,0 +1,12 @@
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace math_games.Controllers
+{
+    public class LoopingGridsController : Controller
+    {
+        public IActionResult Index()
+        {
+            return View();
+        }
+    }
+}

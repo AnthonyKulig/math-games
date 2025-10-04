@@ -1,0 +1,33 @@
+﻿@{
+    ViewData["Title"] = "Looping Grids";
+}
+
+<h1>Looping Grids</h1>
+
+<form asp-controller="LoopingGrids" asp-action="Index" method="post" class="mb-3">
+    <div class="mb-3">
+        <label for="instructions" class="form-label">Instructions</label>
+        <input type="text" id="instructions" name="instructions" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+<div class="mt-4">
+    <table class="table table-bordered table-sm text-center align-middle">
+        <tbody>
+        @for (var r = 0; r < 20; r++)
+        {
+            <tr>
+                @for (var c = 0; c < 20; c++)
+                {
+                    <td style="width: 30px; height: 30px;"></td>
+                }
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+<div class="mt-3">
+    <a asp-controller="Home" asp-action="Index" class="btn btn-link">Back to Home</a>
+</div>

@@ -1,0 +1,42 @@
+﻿using System.Collections.Generic;
+
+namespace math_games.ViewModels
+{
+    public class LoopingGridsIndexViewModel
+    {
+        public string? Instructions { get; set; }
+        public int Rows { get; set; } = 50;
+        public int Columns { get; set; } = 50;
+        public int CellSizePx { get; set; } = 12;
+
+        // Hidden field to pass the current grid state as JSON on form submit
+        public string? GridStateJson { get; set; }
+
+        // 2D grid of active (true) / inactive (false) cells
+        public List<List<bool>> Cells { get; set; } = new();
+
+        public void EnsureGrid()
+        {
+            if (Rows <= 0) Rows = 1;
+            if (Columns <= 0) Columns = 1;
+
+            Cells.Clear();
+            for (int r = 0; r < Rows; r++)
+            {
+                var row = new List<bool>(Columns);
+                for (int c = 0; c < Columns; c++)
+                {
+                    row.Add(false); // start inactive
+                }
+                Cells.Add(row);
+            }
+        }
+
+        public static LoopingGridsIndexViewModel CreateDefault()
+        {
+            var vm = new LoopingGridsIndexViewModel();
+            vm.EnsureGrid();
+            return vm;
+        }
+    }
+}
