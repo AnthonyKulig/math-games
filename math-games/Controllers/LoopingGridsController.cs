@@ -19,19 +19,14 @@ namespace math_games.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Index(LoopingGridsIndexViewModel model)
         {
-            // Only reset if user is submitting new instructions
-            model.ResetGrid();
             model.InitializeStepState();
-            model.GridStateJson = JsonSerializer.Serialize(model.Cells);
             return View(model);
         }
 
         [HttpPost]
         public IActionResult NextStep([FromBody] LoopingGridsIndexViewModel model)
         {
-            // Do NOT reset grid or state here!
             model.NextStep();
-            model.GridStateJson = JsonSerializer.Serialize(model.Cells);
             return PartialView("_GridPartial", model);
         }
     #endregion
