@@ -1,5 +1,19 @@
 @model math_games.ViewModels.LoopingGridsIndexViewModel
 @using System.Text.Json
+@if (Model.ParsedInstructions != null && Model.ParsedInstructions.Count > 0)
+{
+    <div class="alert alert-info mt-3" id="instructionsStatus">
+        <strong>Loaded Instructions:</strong> @string.Join(", ", Model.ParsedInstructions)
+        <br />
+        <strong>Step:</strong> @Model.Steps/@Model.MaxIterations
+    </div>
+}
+else
+{
+    <div class="alert alert-warning mt-3" id="instructionsStatus">
+        No instructions loaded. Please enter instructions and submit.
+    </div>
+}
 <table class="grid-table" id="grid">
     <tbody>
     @for (var r = 0; r < Model.Rows; r++)

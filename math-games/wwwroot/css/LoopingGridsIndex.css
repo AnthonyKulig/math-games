@@ -4,3 +4,4 @@
 .grid-table td.active { background: #0d6efd; }
 .grid-table td.inactive { background: #f8f9fa; }
 .grid-table td.start { box-shadow: inset 0 0 0 2px #198754; }
+.grid-table td.current { box-shadow: inset 0 0 0 2px #198754; }

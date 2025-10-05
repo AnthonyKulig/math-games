@@ -2,8 +2,6 @@
 @using System.Text.Json
 @{
     ViewData["Title"] = "Looping Grids";
-    var instructionsLoaded = Model.ParsedInstructions != null && Model.ParsedInstructions.Count > 0;
-    var stepNumber = Model.CurrentInstructionIndex + 1;
 }
 
 <h1>Looping Grids</h1>
@@ -24,25 +22,17 @@
             <input asp-for="StartColumn" type="number" class="form-control" min="0" />
         </div>
     </div>
+    <div class="row g-3 mt-2">
+        <div class="col-md-3">
+            <label asp-for="MaxIterations" class="form-label">Max Iterations</label>
+            <input asp-for="MaxIterations" type="number" class="form-control" min="1" id="MaxIterations" />
+        </div>
+    </div>
     <input type="hidden" id="ViewModelJson" name="ViewModelJson" value='@Html.Raw(JsonSerializer.Serialize(Model))' />
     <button type="submit" id="submitBtn" class="btn btn-primary mt-3">Submit</button>
     <button type="button" id="nextStepBtn" class="btn btn-secondary mt-3 ms-2" disabled>Next Step</button>
+    <button type="button" id="playBtn" class="btn btn-success mt-3 ms-2" disabled>Play</button>
 </form>
-
-@if (instructionsLoaded)
-{
-    <div class="alert alert-info mt-3" id="instructionsStatus">
-        <strong>Loaded Instructions:</strong> @string.Join(", ", Model.ParsedInstructions)
-        <br />
-        <strong>Step:</strong> @stepNumber of @Model.ParsedInstructions.Count
-    </div>
-}
-else
-{
-    <div class="alert alert-warning mt-3" id="instructionsStatus">
-        No instructions loaded. Please enter instructions and submit.
-    </div>
-}
 
 <div class="mt-4" id="gridContainer">
     @await Html.PartialAsync("_GridPartial", Model)

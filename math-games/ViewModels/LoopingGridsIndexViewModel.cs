@@ -8,9 +8,9 @@ namespace math_games.ViewModels
         public string? Instructions { get; set; }
         public int Rows { get; set; } = 50;
         public int Columns { get; set; } = 50;
-
         public int StartRow { get; set; } = 25;
         public int StartColumn { get; set; } = 25;
+        public int MaxIterations { get; set; } = 100; // New property
         // Hidden field to pass the current grid state as JSON on form submit
         public string? GridStateJson { get; set; }
         public List<List<bool>> Cells { get; set; } = new();
@@ -25,6 +25,15 @@ namespace math_games.ViewModels
         public List<int> ParsedInstructions { get; set; } = new();
         public bool IsInitialized { get; set; } = false;
         public int Steps { get; set; } = 1;
+        #endregion
+
+        #region public factory methods
+        public static LoopingGridsIndexViewModel CreateDefault()
+        {
+            var vm = new LoopingGridsIndexViewModel();
+            vm.ResetGrid();
+            return vm;
+        }
         #endregion
 
         #region public methods
@@ -50,17 +59,12 @@ namespace math_games.ViewModels
             return true;
         }
 
-        public void ApplyInstructions(List<int> distances)
+        public void ApplyInstructions(int iterations)
         {
-            int currentRow = StartRow;
-            int currentColumn = StartColumn;
-            string direction = "left";
-
-            for (Steps = 1; Steps <= 100; Steps++)
+            for (int i = 0; i < iterations; i++)
             {
                 ApplyOneStep();
             }
-
             GridStateJson = JsonSerializer.Serialize(Cells);
         }
         #endregion
@@ -166,15 +170,5 @@ namespace math_games.ViewModels
             }
         }
         #endregion
-
-        #region public factory methods
-        public static LoopingGridsIndexViewModel CreateDefault()
-        {
-            var vm = new LoopingGridsIndexViewModel();
-            vm.ResetGrid();
-            return vm;
-        }
-        #endregion
-
     }
 }
