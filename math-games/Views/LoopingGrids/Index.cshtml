@@ -1,11 +1,13 @@
 @model math_games.ViewModels.LoopingGridsIndexViewModel
 @{
     ViewData["Title"] = "Looping Grids";
+    var instructionsLoaded = Model.ParsedInstructions != null && Model.ParsedInstructions.Count > 0;
+    var stepNumber = Model.CurrentInstructionIndex + 1;
 }
 
 <h1>Looping Grids</h1>
 
-<form asp-controller="LoopingGrids" asp-action="Index" method="post" class="mb-3">
+<form id="mainForm" asp-controller="LoopingGrids" asp-action="Index" method="post" class="mb-3">
     <div class="row g-3">
         <div class="col-md-6">
             <label asp-for="Instructions" class="form-label"></label>
@@ -21,27 +23,34 @@
             <input asp-for="StartColumn" type="number" class="form-control" min="0" />
         </div>
     </div>
-    <input type="hidden" asp-for="GridStateJson" />
-    <button type="submit" class="btn btn-primary mt-3">Submit</button>
+    <input type="hidden" asp-for="GridStateJson" id="GridStateJson" />
+    <input type="hidden" asp-for="CurrentRow" id="CurrentRow" />
+    <input type="hidden" asp-for="CurrentColumn" id="CurrentColumn" />
+    <input type="hidden" asp-for="CurrentDirection" id="CurrentDirection" />
+    <input type="hidden" asp-for="CurrentInstructionIndex" id="CurrentInstructionIndex" />
+    <input type="hidden" asp-for="CurrentStepInInstruction" id="CurrentStepInInstruction" />
+    <input type="hidden" asp-for="IsInitialized" id="IsInitialized" />
+    <button type="submit" id="submitBtn" class="btn btn-primary mt-3">Submit</button>
+    <button type="button" id="nextStepBtn" class="btn btn-secondary mt-3 ms-2" disabled>Next Step</button>
 </form>
 
-<div class="mt-4">
-    <table class="grid-table" id="grid">
-        <tbody>
-        @for (var r = 0; r < Model.Rows; r++)
-        {
-            <tr>
-                @for (var c = 0; c < Model.Columns; c++)
-                {
-                    var isActive = Model.Cells[r][c];
-                    var cls = isActive ? "active" : "inactive";
-                    var isStart = r == Model.StartRow && c == Model.StartColumn ? "start" : "";
-                    <td class="cell @cls @isStart" data-r="@r" data-c="@c"></td>
-                }
-            </tr>
-        }
-        </tbody>
-    </table>
+@if (instructionsLoaded)
+{
+    <div class="alert alert-info mt-3" id="instructionsStatus">
+        <strong>Loaded Instructions:</strong> @string.Join(", ", Model.ParsedInstructions)
+        <br />
+        <strong>Step:</strong> @stepNumber of @Model.ParsedInstructions.Count
+    </div>
+}
+else
+{
+    <div class="alert alert-warning mt-3" id="instructionsStatus">
+        No instructions loaded. Please enter instructions and submit.
+    </div>
+}
+
+<div class="mt-4" id="gridContainer">
+    @await Html.PartialAsync("_GridPartial", Model)
 </div>
 
 @section Scripts {

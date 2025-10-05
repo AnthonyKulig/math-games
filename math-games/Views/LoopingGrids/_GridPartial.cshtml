@@ -1,0 +1,17 @@
+@model math_games.ViewModels.LoopingGridsIndexViewModel
+<table class="grid-table" id="grid">
+    <tbody>
+    @for (var r = 0; r < Model.Rows; r++)
+    {
+        <tr>
+            @for (var c = 0; c < Model.Columns; c++)
+            {
+                var isActive = Model.Cells[r][c];
+                var cls = isActive ? "active" : "inactive";
+                var isStart = r == Model.StartRow && c == Model.StartColumn ? "start" : "";
+                <td class="cell @cls @isStart" data-r="@r" data-c="@c"></td>
+            }
+        </tr>
+    }
+    </tbody>
+</table>

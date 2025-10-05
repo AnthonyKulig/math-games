@@ -1,5 +1,3 @@
-
-using System.Reflection;
 using System.Text.Json;
 
 namespace math_games.ViewModels
@@ -18,11 +16,24 @@ namespace math_games.ViewModels
         public List<List<bool>> Cells { get; set; } = new();
         #endregion
 
+        #region state for step-by-step execution
+        public int CurrentRow { get; set; } = 25;
+        public int CurrentColumn { get; set; } = 25;
+        public string CurrentDirection { get; set; } = "left";
+        public int CurrentInstructionIndex { get; set; } = 0;
+        public int CurrentStepInInstruction { get; set; } = 0;
+        public List<int> ParsedInstructions { get; set; } = new();
+        public bool IsInitialized { get; set; } = false;
+        public int Steps { get; set; } = 1;
+        #endregion
+
         #region public methods
         public void ResetGrid()
         {
-            if (Rows <= 0 || Columns <= 0)
-                throw new Exception($"Invalid gridsize:{Rows},{Columns}");
+            if (Rows <= 0)
+                Rows = 1;
+            if (Columns <= 0)
+                Columns = 1;
 
             Cells.Clear();
             for (int r = 0; r < Rows; r++)
@@ -32,11 +43,29 @@ namespace math_games.ViewModels
                 {
                     row.Add(false); // start inactive
                 }
-
                 Cells.Add(row);
             }
+        }
 
-            GridStateJson = JsonSerializer.Serialize(Cells);
+        public void InitializeStepState()
+        {
+            ResetInstructions();
+            CurrentRow = StartRow;
+            CurrentColumn = StartColumn;
+            CurrentDirection = "left";
+            CurrentInstructionIndex = 0;
+            CurrentStepInInstruction = 0;
+            IsInitialized = true;
+            ResetGrid();
+        }
+
+        public bool NextStep()
+        {
+            EnsureCellsFromJson();
+            if (ParsedInstructions == null || ParsedInstructions.Count == 0)
+                ResetInstructions();
+            ApplyOneStep();
+            return true;
         }
 
         public void ApplyInstructions(List<int> distances)
@@ -45,27 +74,10 @@ namespace math_games.ViewModels
             int currentColumn = StartColumn;
             string direction = "left";
 
-            for (int steps = 0; steps < 100; steps++)
+            for (int steps = 1; steps <= 100; steps++)
             {
-                direction = GetNextDirection(direction);
-                int distance = distances[steps % distances.Count];
-
-                for (int i = 0; i < distance; i++)
-                {
-                    switch (direction)
-                    {
-                        case "up": currentRow -= 1; break;
-                        case "right": currentColumn += 1; break;
-                        case "down": currentRow += 1; break;
-                        case "left": currentColumn -= 1; break;
-                    }
-
-                    if (currentRow < Rows && currentColumn < Columns
-                        && currentRow > 0 && currentColumn > 0)
-                    {
-                        Cells[currentRow][currentColumn] = true;
-                    }
-                }
+                this.Steps = steps;
+                ApplyOneStep();
             }
 
             GridStateJson = JsonSerializer.Serialize(Cells);
@@ -73,6 +85,59 @@ namespace math_games.ViewModels
         #endregion
 
         #region private helper methods
+        private void ResetInstructions()
+        {
+            ParsedInstructions.Clear();
+            if (!string.IsNullOrWhiteSpace(Instructions))
+            {
+                var parts = Instructions.Split(',', System.StringSplitOptions.RemoveEmptyEntries | System.StringSplitOptions.TrimEntries);
+                foreach (var p in parts)
+                {
+                    if (int.TryParse(p, out var n))
+                        ParsedInstructions.Add(n);
+                }
+            }
+        }
+
+        private void EnsureCellsFromJson()
+        {
+            if (!string.IsNullOrWhiteSpace(GridStateJson))
+            {
+                try
+                {
+                    var parsed = JsonSerializer.Deserialize<List<List<bool>>>(GridStateJson);
+                    if (parsed is not null)
+                        Cells = parsed;
+                }
+                catch { ResetGrid(); }
+            }
+        }
+
+        private void ApplyOneStep()
+        {
+            if (ParsedInstructions == null || ParsedInstructions.Count == 0)
+                return;
+            int distance = ParsedInstructions[Steps % ParsedInstructions.Count];
+            string nextDirection = GetNextDirection(CurrentDirection);
+
+            for (int i = 0; i < distance; i++)
+            {
+                switch (nextDirection)
+                {
+                    case "up": CurrentRow -= 1; break;
+                    case "right": CurrentColumn += 1; break;
+                    case "down": CurrentRow += 1; break;
+                    case "left": CurrentColumn -= 1; break;
+                }
+
+                if (CurrentRow >= 0 && CurrentRow < Rows && CurrentColumn >= 0 && CurrentColumn < Columns)
+                {
+                    Cells[CurrentRow][CurrentColumn] = true;
+                }
+            }
+        }
+
+
         private string GetNextDirection(string direction)
         {
             if (direction == "up")
@@ -92,6 +157,12 @@ namespace math_games.ViewModels
                 return "up";
             }
         }
+
+        private int GetNextDistance()
+        {
+            return 5;
+        }
+
         #endregion
 
         #region public factory methods
