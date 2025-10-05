@@ -31,61 +31,48 @@
     document.addEventListener('DOMContentLoaded', function() {
         var nextStepBtn = document.getElementById('nextStepBtn');
         var mainForm = document.getElementById('mainForm');
-        var submitBtn = document.getElementById('submitBtn');
-        var instructionsStatus = document.getElementById('instructionsStatus');
         if (nextStepBtn && mainForm) {
             // Enable Next Step if instructions are loaded after postback
-            if (instructionsStatus && instructionsStatus.classList.contains('alert-info')) {
-                nextStepBtn.disabled = false;
-            } else {
-                nextStepBtn.disabled = true;
-            }
+            var enableNextStepIfLoaded = function() {
+                var instructionsStatus = document.getElementById('instructionsStatus');
+                if (instructionsStatus && instructionsStatus.classList.contains('alert-info')) {
+                    nextStepBtn.disabled = false;
+                } else {
+                    nextStepBtn.disabled = true;
+                }
+            };
+            enableNextStepIfLoaded();
 
             mainForm.addEventListener('submit', function(e) {
                 // Let the form post normally, but after postback, Next Step will be enabled if instructions are valid
-                // This is handled by the server-side rendering
+                setTimeout(enableNextStepIfLoaded, 100); // re-check after postback
             });
 
             nextStepBtn.addEventListener('click', function (e) {
                 e.preventDefault();
-                // Defensive: check all required fields exist
-                var getVal = function(id) {
-                    var el = document.getElementById(id);
-                    return el ? el.value : '';
-                };
-                const data = {
-                    Instructions: document.querySelector('[name="Instructions"]')?.value || '',
-                    Rows: parseInt(document.querySelector('[name="Rows"]')?.value || '0'),
-                    Columns: parseInt(document.querySelector('[name="Columns"]')?.value || '0'),
-                    StartRow: parseInt(document.querySelector('[name="StartRow"]')?.value || '0'),
-                    StartColumn: parseInt(document.querySelector('[name="StartColumn"]')?.value || '0'),
-                    GridStateJson: getVal('GridStateJson'),
-                    CurrentRow: parseInt(getVal('CurrentRow') || '0'),
-                    CurrentColumn: parseInt(getVal('CurrentColumn') || '0'),
-                    CurrentDirection: getVal('CurrentDirection'),
-                    CurrentInstructionIndex: parseInt(getVal('CurrentInstructionIndex') || '0'),
-                    CurrentStepInInstruction: parseInt(getVal('CurrentStepInInstruction') || '0'),
-                    IsInitialized: getVal('IsInitialized') === 'true'
-                };
+                var viewModelJson = document.getElementById('ViewModelJson').value;
                 fetch('/LoopingGrids/NextStep', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                    body: viewModelJson
                 })
                 .then(resp => resp.text())
                 .then(html => {
                     document.getElementById('gridContainer').innerHTML = html;
+                    // Enable Next Step if instructions are loaded in the new partial
+                    var instructionsStatus = document.getElementById('instructionsStatus');
+                    if (instructionsStatus && instructionsStatus.classList.contains('alert-info')) {
+                        nextStepBtn.disabled = false;
+                    } else {
+                        nextStepBtn.disabled = true;
+                    }
+                    // Update the main form's hidden field with the new JSON from the partial
+                    var newJson = document.querySelector('#gridContainer #ViewModelJson');
+                    if (newJson) {
+                        document.getElementById('ViewModelJson').value = newJson.value;
+                    }
                 });
             });
-        }
-    });
-
-    // Enable Next Step button after page load if instructions are loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        var nextStepBtn = document.getElementById('nextStepBtn');
-        var instructionsStatus = document.getElementById('instructionsStatus');
-        if (nextStepBtn && instructionsStatus && instructionsStatus.classList.contains('alert-info')) {
-            nextStepBtn.disabled = false;
         }
     });
 })();

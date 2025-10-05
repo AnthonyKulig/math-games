@@ -20,15 +20,17 @@ namespace math_games.Controllers
         public IActionResult Index(LoopingGridsIndexViewModel model)
         {
             model.InitializeStepState();
+            model.GridStateJson = JsonSerializer.Serialize(model.Cells);
             return View(model);
         }
 
         [HttpPost]
-        public IActionResult NextStep([FromBody] LoopingGridsIndexViewModel model)
+        public IActionResult NextStep([FromBody] JsonElement json)
         {
-            model.NextStep();
+            var model = JsonSerializer.Deserialize<LoopingGridsIndexViewModel>(json.GetRawText());
+            model?.NextStep();
             return PartialView("_GridPartial", model);
         }
-    #endregion
+        #endregion
     }
 }

@@ -1,4 +1,5 @@
 @model math_games.ViewModels.LoopingGridsIndexViewModel
+@using System.Text.Json
 <table class="grid-table" id="grid">
     <tbody>
     @for (var r = 0; r < Model.Rows; r++)
@@ -15,3 +16,4 @@
     }
     </tbody>
 </table>
+<input type="hidden" id="ViewModelJson" name="ViewModelJson" value='@Html.Raw(JsonSerializer.Serialize(Model))' />

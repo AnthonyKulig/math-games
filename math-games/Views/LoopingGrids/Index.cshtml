@@ -1,4 +1,5 @@
 @model math_games.ViewModels.LoopingGridsIndexViewModel
+@using System.Text.Json
 @{
     ViewData["Title"] = "Looping Grids";
     var instructionsLoaded = Model.ParsedInstructions != null && Model.ParsedInstructions.Count > 0;
@@ -23,13 +24,7 @@
             <input asp-for="StartColumn" type="number" class="form-control" min="0" />
         </div>
     </div>
-    <input type="hidden" asp-for="GridStateJson" id="GridStateJson" />
-    <input type="hidden" asp-for="CurrentRow" id="CurrentRow" />
-    <input type="hidden" asp-for="CurrentColumn" id="CurrentColumn" />
-    <input type="hidden" asp-for="CurrentDirection" id="CurrentDirection" />
-    <input type="hidden" asp-for="CurrentInstructionIndex" id="CurrentInstructionIndex" />
-    <input type="hidden" asp-for="CurrentStepInInstruction" id="CurrentStepInInstruction" />
-    <input type="hidden" asp-for="IsInitialized" id="IsInitialized" />
+    <input type="hidden" id="ViewModelJson" name="ViewModelJson" value='@Html.Raw(JsonSerializer.Serialize(Model))' />
     <button type="submit" id="submitBtn" class="btn btn-primary mt-3">Submit</button>
     <button type="button" id="nextStepBtn" class="btn btn-secondary mt-3 ms-2" disabled>Next Step</button>
 </form>

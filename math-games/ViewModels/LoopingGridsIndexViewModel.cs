@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Text.Json;
 
 namespace math_games.ViewModels
@@ -57,9 +56,8 @@ namespace math_games.ViewModels
             int currentColumn = StartColumn;
             string direction = "left";
 
-            for (int steps = 1; steps <= 100; steps++)
+            for (Steps = 1; Steps <= 100; Steps++)
             {
-                this.Steps = steps;
                 ApplyOneStep();
             }
 
